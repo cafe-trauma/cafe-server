@@ -20,7 +20,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     body = {'query': query, 'Accept': 'application/sparql-results+json' }
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     try:
-        r = requests.request('POST', settings.TRIPLESTORE_URL + 'rdf', data=body, headers=headers)
+        r = requests.request('POST', settings.BASE_URL + 'rdf', data=body, headers=headers)
         if r.ok:
             try:
                 data = r.json()
@@ -55,7 +55,7 @@ def run_statements(statements, context):
     params = {'context': context}
     print('bod: {}'.format(body))
     try:
-        r = requests.request('PUT', settings.TRIPLESTORE_URL + 'rdf/statements', data=body, headers=headers, params=params)
+        r = requests.request('PUT', settings.BASE_URL + 'rdf/statements', data=body, headers=headers, params=params)
         print('finished: {}'.format(r.text))
     except:
         print('failed rdf')
