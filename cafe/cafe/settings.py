@@ -88,18 +88,18 @@ WSGI_APPLICATION = 'cafe.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'cafe',
-    #     'USER': 'cafeuser',
-    #     'PASSWORD': 'inmelet1',
-    #     'HOST': '127.0.0.1',
-    #     'PORT': '',
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'cafe',
+        'USER': 'cafeuser',
+        'PASSWORD': 'inmelet1',
+        'HOST': '127.0.0.1',
+        'PORT': '',
+    }
 }
 
 
@@ -127,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -143,7 +143,7 @@ USE_TZ = True
 STATIC_ROOT = '/usr/share/nginx/html/static'
 STATIC_URL = '/static/'
 
-BASE_URL='https://dev.cafe-trauma.com/'
+BASE_URL='cafe-trauma-dev-i.bmi.ufl.edu'
 
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
