@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -149,5 +150,10 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST = 'smtp.ufl.edu'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.getenv('SMTP_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('SMTP_HOST_PASSWORD')
+
+email_config = os.path.join(BASE_DIR, 'cafe/email_config.cfg')
+with open(email_config) as email_file:
+    email_info = json.load(email_file)
+
+EMAIL_HOST_USER = email_info['SMTP_HOST_USER']
+EMAIL_HOST_PASSWORD = email_info['SMTP_HOST_PASSWORD']
