@@ -26,7 +26,8 @@ SECRET_KEY = '$@2z&+$_5vurck9m^_qowzdvrjg7si=-f8y7zso4cnd!uav7&l'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.cafe-trauma.com',
+ALLOWED_HOSTS = ['cafe-trauma.com',
+                 '.cafe-trauma.com',
                  'localhost',
                  '127.0.0.1',
                  '[::1]']
@@ -101,6 +102,35 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '',
     }
+}
+
+
+# Logging
+# https://docs.djangoproject.com/en/3.0/topics/logging/
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
 }
 
 
