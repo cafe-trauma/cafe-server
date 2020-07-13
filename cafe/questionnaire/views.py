@@ -40,7 +40,7 @@ def populate_stats(org, stat_type):
 
 def send_login_email(request, user):
     token = Token.objects.get(user=user).key
-    login_url = 'http://{}/?token={}'.format(request.get_host(), token)
+    login_url = '{}?token={}'.format(settings.BASE_URL, token)
     if(settings.EMAIL_HOST):
         email_message = "Here is your login URL for cafe\n\n{}".format(login_url)
         send_mail(
@@ -220,7 +220,7 @@ def api_category_responses(request, web_category):
             for answer in answers:
                 org_id = answer.organization_id
                 if not answer_type:
-                    if answer.yesno is not None:
+                    if answer.yesno is not None or answer.integer == -1:
                         answer_type = "yesno"
                     elif answer.integer:
                         answer_type = "number"
@@ -244,6 +244,18 @@ def api_category_responses(request, web_category):
                         response[question.id]['numbers'] = [answer.integer]
                     if user_org == org_id:
                         response[question.id]['active_answer'] = answer.integer
+                elif answer_type == "text":
+                    if 'options' not in response[question.id].keys():
+                        response[question.id]['options'] = {}
+                    if user_org == org_id:
+                        response[question.id]['active_answer'] = []
+                    if answer.text:
+                        if answer.text not in response[question.id]['options'].keys():
+                            response[question.id]['options'][answer.text] = 1
+                        else:
+                            response[question.id]['options'][answer.text] += 1
+                        if user_org == org_id:
+                            response[question.id]['active_answer'].append(answer.text)
                 elif answer_type == "options":
                     if 'options' not in response[question.id].keys():
                         response[question.id]['options'] = {}
@@ -251,11 +263,21 @@ def api_category_responses(request, web_category):
                         response[question.id]['active_answer'] = []
                     for option in answer.options.values():
                         if option['text'] not in response[question.id]['options'].keys():
-                            response[question.id]['options'][option['text']] = 0
+                            response[question.id]['options'][option['text']] = 1
                         else:
                             response[question.id]['options'][option['text']] += 1
                         if user_org == org_id:
                             response[question.id]['active_answer'].append(option['text'])
+
+            if answer_type == "text" or answer_type == "options":
+                options = {}
+                for option in question.options.values():
+                    options[option['text']] = option['id']
+
+                options = {a: b for a, b in sorted(options.items(), key=lambda item: item[1])}
+                response[question.id]['or_options'] = sorted(response[question.id]['options'].items(),
+                                                            key=lambda kv: options[kv[0]])
+
     return Response(response)
 
 
