@@ -3,6 +3,10 @@ from questionnaire.models import *
 from django.conf import settings
 from rdflib import Graph, BNode, URIRef, Literal, Namespace
 
+ENDPOINT = settings.BASE_URL + 'rdf'
+# ENDPOINT = settings.BASE_URL
+
+
 def get_definitions():
     query = """
 PREFIX obo: <http://purl.obolibrary.org/obo/>
@@ -20,7 +24,8 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     body = {'query': query, 'Accept': 'application/sparql-results+json' }
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     try:
-        r = requests.request('POST', settings.BASE_URL + 'rdf', data=body, headers=headers)
+        r = requests.request('POST', ENDPOINT, data=body, headers=headers)
+        # r = requests.get(ENDPOINT, data=body)
         if r.ok:
             try:
                 data = r.json()
@@ -45,20 +50,62 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         print('failed rdf')
         return []
 
+def run_query(query):
+    payload = {'query': query, 'Accept': 'application/sparql-results+json'}
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+    print('Running:\n' + query)
+
+    r = requests.get(ENDPOINT, params=payload, headers=headers, auth=('editor', 'secretpassword'))
+    # r = requests.get(ENDPOINT, params=payload, headers=headers)
+    # import pdb;pdb.set_trace()
+
+    return r.json()
 
 def delete_context(context):
-    pass
+    query = """\
+            CLEAR GRAPH {}
+            """.format(context)
+    payload = { 'update': query }
+    headers = {'content-type': 'application/n-triples'}
+    print(query)
+    r = requests.post(ENDPOINT +'/statements', params=payload, auth=requests.auth.HTTPBasicAuth('editor', 'secretpassword'))
+    # r = requests.post(ENDPOINT +'/statements', params=payload)
+    if r.status_code == 200 or r.status_code == 204:
+        print('triples deleted')
+    else:
+        print('error during triple deletion')
+        print(r.status_code)
 
 def run_statements(statements, context):
     body = ' .\n'.join([' '.join(s) for s in statements]) + ' .\n'
-    headers = {'content-type': 'application/n-triples'}
-    params = {'context': context}
-    print('bod: {}'.format(body))
-    try:
-        r = requests.request('PUT', settings.BASE_URL + 'rdf/statements', data=body, headers=headers, params=params)
-        print('finished: {}'.format(r.text))
-    except:
-        print('failed rdf')
+    query = '''
+        INSERT DATA {{
+            GRAPH {context} {{
+                {body}
+            }}
+        }}
+    '''.format(context=context, body=body)
+    print(query)
+    payload = {'update': query}
+    r = requests.post(ENDPOINT +'/statements', params=payload, auth=requests.auth.HTTPBasicAuth('editor', 'secretpassword'))
+    # r = requests.post(ENDPOINT +'/statements', params=payload)
+    if r.status_code == 200 or r.status_code == 204:
+        print('triples added')
+    else:
+        print('error during triple creation')
+        print(r.status_code)
+
+# def runn_statements(statements, context):
+#     import pdb; pdb.set_trace()
+#     body = ' .\n'.join([' '.join(s) for s in statements]) + ' .\n'
+#     headers = {'content-type': 'application/n-triples'}
+#     params = {'context': context}
+#     print('bod: {}'.format(body))
+#     try:
+#         r = requests.request('PUT', ENDPOINT + '/statements', data=body, headers=headers, params=params)
+#         print('finished: {}'.format(r.text))
+#     except:
+#         print('failed rdf')
 
 def get_uri(text, prefixes, bnodes, answer):
     split = text.format(user=answer.organization.id).split(':')

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import json
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -104,35 +105,47 @@ DATABASES = {
     }
 }
 
-
 # Logging
 # https://docs.djangoproject.com/en/3.0/topics/logging/
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(levelname)s %(message)s'
+        },
+    },
     'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'django.log',
+            'filename': BASE_DIR + '/../django.log',
+            'formatter': 'simple'
         },
     },
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
 
-        'django.request': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': False,
-        },
+        # 'django.request': {
+        #     'handlers': ['file'],
+        #     'level': 'INFO',
+        #     'propagate': False,
+        # },
     },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -174,7 +187,7 @@ USE_TZ = True
 STATIC_ROOT = '/usr/share/nginx/html/static'
 STATIC_URL = '/static/'
 
-BASE_URL='http://cafe-trauma-dev-i.bmi.ufl.edu/'
+BASE_URL='http://localhost:8080/rdf4j-server/repositories/cafe'
 
 EMAIL_USE_TLS = True
 
